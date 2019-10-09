@@ -1,0 +1,28 @@
+body{
+  background-color: lightyellow;
+}
+
+h1, h2{
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  text-align: center;
+}
+
+p {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  margin: auto;
+  width: 500px;
+}
+
+#products{
+  display: flex;
+}
+
+#imageDiv {
+  text-align: center;
+}
+
+img{
+  width: 25%;
+  border-radius: 8px;
+  border: slategray solid 1px;
+}
