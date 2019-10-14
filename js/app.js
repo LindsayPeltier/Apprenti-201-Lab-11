@@ -102,7 +102,6 @@ var handleClickOnImg = function(event){
       middleImgOnThePage.timesShown ++;
       rightImgOnThePage.timesShown ++;
 
-      //pick a new Image - function...
       pickNewImages();
     }
   }
@@ -117,10 +116,10 @@ var handleClickOnImg = function(event){
     updateLocalStorage();
   }
 
-  //var showFinalList = function() {
-    //var results = document.getElementById('results');
-    //var resultsList = document.createElement('ul');
-    //results.appendChild(resultsList);
+  var showFinalList = function() {
+    var results = document.getElementById('results');
+    var resultsList = document.createElement('ul');
+    results.appendChild(resultsList);
 
   for(var i = 0; i < BusmallImage.allImages.length ; i++){
     var liEl = document.createElement('li');
