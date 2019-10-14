@@ -42,7 +42,6 @@ function getStoredData() {
   }
 }
 
-//renders three images on the screen
 var renderNewImages = function(leftIndex, middleIndex, rightIndex){
   leftImageTag.src = BusmallImage.allImages[leftIndex].imgURL;
   middleImageTag.src = BusmallImage.allImages[middleIndex].imgURL;
@@ -112,7 +111,7 @@ var handleClickOnImg = function(event){
     resetButton.className = 'resetEnable';
     imageSectionTag.removeEventListener('click', handleClickOnImg);
     alert('Thank You For Your Participation!');
-    //showFinalList();
+    showFinalList();
     updateLocalStorage();
   }
 
@@ -250,5 +249,5 @@ function makeChart(){
         }]
       }
     }
-  });
+  })
 }
