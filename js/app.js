@@ -1,11 +1,11 @@
 'use strict';
 
 //global variables
-var imageSectionTag = document.getElementById('');
-var leftImageTag = document.getElementById('');
-var middleImageTag = document.getElementById('');
-var rightImageTag = document.getElementById('');
-var resetButton = document.getElementsByClassName('');
+var imageSectionTag = document.getElementById('products');
+var leftImageTag = document.getElementById('leftImageTag');
+var middleImageTag = document.getElementById('middleImageTag');
+var rightImageTag = document.getElementById('rightImageTag');
+var resetButton = document.getElementById('reset');
 var totalClicks = 0;
 
 var leftImgOnThePage = null;
@@ -16,13 +16,128 @@ var rightImgOnThePage = null;
 //constructor function
 var BusmallImage = function(name, imgURl){
   this.name = name;
-  this.imgURl = imgURl;
+  this.imgURL = imgURl;
   this.totalClicks = 0;
   this.timeShown = 0;
-
-  BusmallImage.allimages.push(this);
+  this.previouslyShown = false;
+  BusmallImage.allImages.push(this);
 
 };
+
+//array to store images
+BusmallImage.allImages = [];
+
+//local storage
+function updateLocalStorage() {
+  var arrString = JSON.stringify(BusmallImage.allImages);
+  localStorage.setItem('data', arrString);
+}
+
+function getStoredData() {
+  var localData = localStorage.getItem('data');
+  var productData = JSON.parse(localData);
+
+  if (productData !== null) {
+    BusmallImage.allImages = productData;
+  }
+}
+
+//renders three images on the screen
+var renderNewImages = function(leftIndex, middleIndex, rightIndex){
+  leftImageTag.src = BusmallImage.allImages[leftIndex].imgURL;
+  middleImageTag.src = BusmallImage.allImages[middleIndex].imgURL;
+  rightImageTag.src = BusmallImage.allImages[rightIndex].imgURL;
+};
+
+//Randomizer (Reviewed Natalie and Mason's code)
+var pickNewImages = function() {
+  var leftIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
+  var middleIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
+  var rightIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);  
+  while(BusmallImage.allImages[leftIndex].previouslyShown) {
+    leftIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
+  }
+  while(rightIndex === leftIndex || BusmallImage.allImages[rightIndex].previouslyShown) {
+    rightIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
+  }
+  while(leftIndex === middleIndex || rightIndex === middleIndex || BusmallImage.allImages[middleIndex].previouslyShown) {
+    middleIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
+  }
+  for (var i = 0; i < BusmallImage.allImages.length; i++) {
+    BusmallImage.allImages[i].previouslyShown = false;
+  }
+
+  leftImgOnThePage = BusmallImage.allImages[leftIndex];
+  middleImgOnThePage = BusmallImage.allImages[middleIndex];
+  rightImgOnThePage = BusmallImage.allImages[rightIndex];
+
+  BusmallImage.allImages[leftIndex].previouslyShown = true;
+  BusmallImage.allImages[rightIndex].previouslyShown = true;
+  BusmallImage.allImages[middleIndex].previouslyShown = true;
+
+  renderNewImages(leftIndex, middleIndex, rightIndex);
+};
+
+//Event Handler
+var handleClickOnImg = function(event){
+  var mainEl = document.getElementById('wrapper');
+
+  if(totalClicks < 25) {
+    var thingWeClickedOn = event.target;
+    var id = thingWeClickedOn.id;
+
+    if(id === 'leftImageTag' || id === 'middleImageTag' || id === 'rightImageTag') {
+
+      if (id === 'leftImageTag'){
+        leftImgOnThePage.totalClicks ++;
+      }
+      if (id === 'middleImageTag'){
+        middleImgOnThePage.totalClicks ++;
+      }
+      if (id === 'rightImageTag'){
+        rightImgOnThePage.totalClicks ++;
+      }
+
+      leftImgOnThePage.timesShown ++;
+      middleImgOnThePage.timesShown ++;
+      rightImgOnThePage.timesShown ++;
+
+      //pick a new Image - function...
+      pickNewImages();
+    }
+  }
+  totalClicks ++;
+
+  if(totalClicks === 25) {
+    resetButton.addEventListener('click', handleReset);
+    resetButton.className = 'resetEnable';
+    imageSectionTag.removeEventListener('click', handleClickOnImg);
+    alert('Thank You For Your Participation!');
+    //showFinalList();
+    updateLocalStorage();
+  }
+
+  //var showFinalList = function() {
+    //var results = document.getElementById('results');
+    //var resultsList = document.createElement('ul');
+    //results.appendChild(resultsList);
+
+  for(var i = 0; i < BusmallImage.allImages.length ; i++){
+    var liEl = document.createElement('li');
+    liEl.textContent = `${BusmallImage.allImages[i].name}: ${BusmallImage.allImages[i].totalClicks}`;
+    mainEl.appendChild(liEl);
+  }
+  makeChart();
+  updateLocalStorage();
+};
+
+imageSectionTag.addEventListener('click', handleClickOnImg);
+
+function handleReset(){
+  totalClicks = 0;
+  imageSectionTag.addEventListener('click', handleClickOnImg);
+  resetButton.className = 'resetDisable';
+}
 
 new BusmallImage('bag', './img/bag.jpg');
 new BusmallImage('banana', './img/banana.jpg');
@@ -38,133 +153,103 @@ new BusmallImage('pen', './img/pen.jpg');
 new BusmallImage('pet-sweep', './img/pet-sweep.jpg');
 new BusmallImage('scissors', './img/scissors.jpg');
 new BusmallImage('shark', './img/shark.jpg');
-new BusmallImage('sweep', './img/sweep.jpg');
+new BusmallImage('sweep', './img/sweep.png');
 new BusmallImage('tauntaun', './img/tauntaun.jpg');
 new BusmallImage('unicorn', './img/unicorn.jpg');
-new BusmallImage('usb', './img/usb.jpg');
+new BusmallImage('usb', './img/usb.gif');
 new BusmallImage('water-can', './img/water-can.jpg');
 new BusmallImage('wine-glass', './img/wine-glass.jpg');
 
-BusmallImage.allImages = []; //array to store images
-
-//prototype to keep track of results?
-
-//to create and track image percentage data
-//productImage.prototype.getPercentofShown = function(){
-//this object's total clicks
-//this object's total shown
-//format it as a percentage
-//return
-//}
-
-//helper functions
-
-//renders three images on the screen
-var renderNewImages = function(leftIndex, middleIndex, rightIndex){
-  leftImageTag.src = BusmallImage.allImages[leftIndex].imgURL;
-  middleImageTag.src = BusmallImage.allImages[middleIndex].imgURL;
-  rightImageTag.src = BusmallImage.allImages[rightIndex].imgURL;
-};
-
-//Randomizer
-var pickNewImages = function(){
-  var leftIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
-
-  do {
-    var rightIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
-    var middleIndex = Math.ceil(Math.random() * BusmallImage.allImages.length - 1);
-  } while((rightIndex === leftIndex) || (rightIndex === middleIndex) || (leftIndex === middleIndex));
-
-  leftImgOnThePage = BusmallImage.allImages[leftIndex];
-  middleImgOnThePage = BusmallImage.allImages[middleIndex];
-  rightImgOnThePage = BusmallImage.allImages[rightIndex];
-
-  renderNewImages(leftIndex, middleIndex, rightIndex);
-};
-
-//Event Handler
-var handleClickOnImg = function(event){
-
-  if(totalClicks < 25) {
-    var thingWeClickedOn = event.target;
-    var id = thingWeClickedOn.id;
-
-    if(id === 'left_image' || id === 'right_image'){
-
-      if (id === 'left_image'){
-        leftImgOnThePage.clicks ++;
-      }
-      if (id === 'middle_image'){
-        middleImgOnThePage.clicks ++;
-      }
-      if (id === 'right_image'){
-        rightImgOnThePage.clicks ++;
-      }
-
-      leftImgOnThePage.timesShown ++;
-      middleImgOnThePage.timesShown ++;
-      rightImgOnThePage.timesShown ++;
-
-      //pick a new Image - function...
-      pickNewImages();
-    }
-  }
-  totalClicks ++;
-  if(totalClicks === 25) {
-    resetButton.addEventListener('click', handleReset);
-    resetButton.className = 'resetEnable';
-    imageSectionTag.removeEventListener('click', handleClickOnImg);
-    alert('Thank You For Your Participation!');
-  }
-
-};
-
-imageSectionTag.addEventListener('click', handleClickOnImg);
-
-function handleReset(){
-  totalClicks = 0;
-  imageSectionTag.addEventListener('click', handleClickOnImg);
-  resetButton.className = 'resetDisable';
-}
-
 pickNewImages();
 
-//chart
-var ctx = document.getElementById('myChart').getContext('2d');
-var myChart = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [{
-      label: '# of Votes',
-      data: [12, 19, 3, 5, 2, 3],
-      backgroundColor: [
-        'rgba(255, 99, 132, 0.2)',
-        'rgba(54, 162, 235, 0.2)',
-        'rgba(255, 206, 86, 0.2)',
-        'rgba(75, 192, 192, 0.2)',
-        'rgba(153, 102, 255, 0.2)',
-        'rgba(255, 159, 64, 0.2)'
-      ],
-      borderColor: [
-        'rgba(255, 99, 132, 1)',
-        'rgba(54, 162, 235, 1)',
-        'rgba(255, 206, 86, 1)',
-        'rgba(75, 192, 192, 1)',
-        'rgba(153, 102, 255, 1)',
-        'rgba(255, 159, 64, 1)'
-      ],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    }
-  }
-});
+var genLabels = function(images) {
+  var labelsArr = [];
+  for (var i = 0; i < images.length; i++){
+    labelsArr.push(images[i].product);
+  };
+  return labelsArr;
+};
 
+var genDataClicks = function(images) {
+  var dataArr = [];
+  for (var i = 0; i < images.length; i++) {
+    dataArr.push(images[i].clicks);
+  };
+  return dataArr
+};
+
+var genDataTime = function(images) {
+  var dataArr = [];
+  for (var i = 0; i < images.length; i++) {
+    dataArr.push(images[i].timeshown);
+  }
+  return dataArr;
+}
+
+function makeChart(){
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: genLabels(BusmallImage.allImages),
+      datasets: [{
+        label: '# of Votes',
+        data: genDataClicks(BusmallImage.allImages),
+        backgroundColor: [
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+        ],
+        borderColor: [
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+          'red',
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+}
